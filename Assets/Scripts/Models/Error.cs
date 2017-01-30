@@ -1,5 +1,6 @@
 namespace NG.TwitterApi
 {
+
 	public class Error
 	{
 		public int code;

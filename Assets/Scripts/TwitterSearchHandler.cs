@@ -25,9 +25,12 @@ public class TwitterSearchHandler : MonoBehaviour
 
 	private void Start ()
 	{
-		string[] keySecret = LoadApiKeyAndSecret();
-		apiKey = keySecret[0];
-		secret = keySecret[1];
+		if (string.IsNullOrEmpty(apiKey) && string.IsNullOrEmpty(secret))
+		{
+			string[] keySecret = LoadApiKeyAndSecret();
+			apiKey = keySecret[0];
+			secret = keySecret[1];
+		}
 	}
 
 	public void MakeSearchRequest(string query)
@@ -40,6 +43,14 @@ public class TwitterSearchHandler : MonoBehaviour
 		}
 	}
 
+	// This is used to load a key file from the application's folder.
+	// I used this because I wanted to have my keys stored in a file and not
+	// publicly accessible on the repository.
+	// Note it's usage in the Start() method.
+	// You can use this method or simply fill in the apiKey and secret values.
+	// If you use this method, make sure to put the twitter.key file in the parent directory
+	// of your project's Assets folder. Make sure to have the apiKey on the first line of the file
+	// and the secret on the second line.
 	private string[] LoadApiKeyAndSecret()
 	{
 		DirectoryInfo appDataParent = Directory.GetParent(Application.dataPath);
@@ -47,7 +58,7 @@ public class TwitterSearchHandler : MonoBehaviour
 
 		if (!Directory.Exists(appDataParent.FullName))
 		{
-			Debug.LogErrorFormat("Direcctory not found: '{0}'", appDataParent.FullName);
+			Debug.LogErrorFormat("Directory not found: '{0}'", appDataParent.FullName);
 			return null;
 		}
 
@@ -80,7 +91,9 @@ public class TwitterSearchHandler : MonoBehaviour
 	
 
 	private IEnumerator MakeOAuthRequest(
-		string apiKey, string apiSecret, OAuthResponseDelegate OnResponse)
+		string apiKey, 
+		string apiSecret, 
+		OAuthResponseDelegate OnResponse)
 	{
 		// Skip future authorization requests.
 		if (authorization != null && authorization.isValid && OnResponse != null)
@@ -108,7 +121,7 @@ public class TwitterSearchHandler : MonoBehaviour
 
 		if (!string.IsNullOrEmpty(request.error))
 		{
-			Debug.LogErrorFormat("UnityEnigine.WWW Error: {0}", request.error);
+			Debug.LogErrorFormat("UnityEngine.WWW Error: {0}", request.error);
 		}
 
 		OAuthResponse response = null;
@@ -134,18 +147,18 @@ public class TwitterSearchHandler : MonoBehaviour
 		authorization = response;
 
 		StartCoroutine(
-			MakeSearchRequest(
+			MakeSearchRequestCoroutine(
 				response.access_token, 
 				query, 
 				HandleSearchResponse,
 				count: 10));
 	}
 
-	IEnumerator MakeSearchRequest(
-		string accessToken, string query, SearchResponseDelegatte OnResponse,
+	IEnumerator MakeSearchRequestCoroutine(
+		string accessToken, string query, SearchResponseDelegate OnResponse,
 		ResultType resultType = ResultType.mixed, int count = 100)
 	{
-		string url = "https://api.twitter.com/1.1/search/tweets.json?q=" + 	WWW.EscapeURL(query);
+		string url = "https://api.twitter.com/1.1/search/tweets.json?q=" + WWW.EscapeURL(query);
 
 		if (resultType != ResultType.mixed)
 			url += "&result_type=" + resultType.ToString();
@@ -171,6 +184,8 @@ public class TwitterSearchHandler : MonoBehaviour
 		if(!string.IsNullOrEmpty(request.text))
 		{
 			searchResponse = JsonConvert.DeserializeObject<SearchResponse>(request.text);
+			Debug.Log(request.text);
+			//Debug.Log(searchResponse.ToString());
 		}
 
 

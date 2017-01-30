@@ -6,8 +6,8 @@ namespace NG.TwitterApi
 	{
 		[JsonProperty("created_at")]
 		public string createdAt { get; private set; }
-		[JsonProperty]
-		public string id_str { get; private set; }
+		[JsonProperty("id_str")]
+		public string id { get; private set; }
 		[JsonProperty]
 		public string text { get; private set; }
 
@@ -24,7 +24,7 @@ namespace NG.TwitterApi
 		{
 			return string.Format(
 				"created_at: {0}\nid_str: {1}\ntext: {2}",
-				createdAt, id_str, text);
+				createdAt, id, text);
 		}
 	}
 }

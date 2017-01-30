@@ -12,8 +12,6 @@ public class TwitterStatusViewHandler : MonoBehaviour
 	private float delay = 2;
 
 	private IEnumerator displayCoroutine;
-	private int statusIndex = 0;
-
 
 	void Awake()
 	{
@@ -33,7 +31,6 @@ public class TwitterStatusViewHandler : MonoBehaviour
 		if (displayCoroutine != null)
 			StopCoroutine(displayCoroutine);
 
-		statusIndex = 0;
 		displayCoroutine = DisplayCoroutine(statuses, delay);
 		StartCoroutine(displayCoroutine);
 	}
@@ -42,7 +39,9 @@ public class TwitterStatusViewHandler : MonoBehaviour
 	{
 		WaitForSeconds wait = new WaitForSeconds(delay);
 
-		while(true)
+		int statusIndex = 0;
+
+		while (true)
 		{
 			text.text = statuses[statusIndex].text;
 			statusIndex++;
